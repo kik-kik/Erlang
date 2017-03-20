@@ -1,6 +1,6 @@
-#Erlang notes
+# Erlang notes
 
-##Origins:
+## Origins:
 Created by three guys:
   - Joe Armstrong
   - Robert Virding
@@ -8,11 +8,11 @@ Created by three guys:
 
 Elang was created in Ericsson for telocom switches in 1986 and went open source in 1998.
 
-##Erlang shell:
+## Erlang shell:
 Type '__erl__' to run erlang shell.
 To quit the shell, press Ctrl + g then press q || type in q().
 
-##Syntax:
+## Syntax:
 __.__ <- the primary expression terminator.
 __%%__ <- for comments (the number of % symbols for different scoping. For example: __%%%__ for file declaration, % for end of line comment).
 
