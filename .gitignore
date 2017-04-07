@@ -1,3 +1,6 @@
 # compiled erl source #
 #######################
 *.beam
+
+# 
+.DS_Store
