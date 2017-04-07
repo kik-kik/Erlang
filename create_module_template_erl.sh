@@ -3,7 +3,7 @@ FILENAME=$1
 # create a new file 
 if [ ! -f $FILENAME.erl ]; then		   
 	echo -e "-module($FILENAME).\n-export([]).\n\n\n" > $FILENAME.erl
-	echo "File $FILENAME was created @ $PWD."
+	echo "File $FILENAME was created."
 else	
 	echo "File already exists, do you wish to override it and create a blank .erl?"
 	echo "y(es) to override, n(o) avoid changes..."
