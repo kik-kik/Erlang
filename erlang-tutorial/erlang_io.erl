@@ -1,0 +1,2 @@
+-module(erlang_io).
+-export([]).
