@@ -1,0 +1,44 @@
+-module(list_stuff).
+-export([sum/1, sum_tail/1]).
+-export([get_max/1, get_max_tail/1]).
+
+%%--------------
+%% Calculating a sum of a list
+%% using direct recursion.
+%%--------------
+sum([]) -> 0;
+sum([H|T]) ->
+    H + sum(T).
+
+%%--------------
+%% Calculating a sum of a list
+%% using tail recursion.
+%%--------------
+sum_tail(List) ->
+    sum_tail(List, 0).
+sum_tail([], Sum) -> % Sum is an accumulator.
+    Sum;
+sum_tail([H|T], Sum) ->
+    sum_tail(T, H + Sum).
+
+
+%%--------------
+%% Getting the max value in a list (direct recursion)
+%%--------------
+get_max([]) ->
+    0;
+get_max([H|T]) ->
+    max(H, get_max(T)).
+
+%%--------------
+%% Getting the max value in a list (tail recursion)
+%%--------------
+get_max_tail(List) -> get_max_tail(List, 0).
+get_max_tail([], Max) -> Max;
+get_max_tail([H | T], Max) -> get_max_tail(T, max(H, Max)).
+
+
+%%--------------
+%% Getting a product for a list of numbers.
+%%--------------
+
