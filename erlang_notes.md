@@ -12,6 +12,12 @@ Elang was created in Ericsson for telocom switches in 1986 and went open source 
 - Type '__erl__' to run erlang shell.
 - To quit the shell, press __Ctrl + g__ then press __q__ || type in __q().__
 
+### Built-in commands:
+
+- pwd() - prints current working directory.
+- ls() - lists names of files in current directory.
+- cd(Dir) - changes the current directory to Dir.
+
 ## Syntax:
 - Erlang is a dynamic language.
 - __.__ <- the primary expression terminator.
@@ -62,10 +68,57 @@ after and andalso band begin bnot bor bsl bsr bxor case catch cond div end fun i
 ```
 
 ### Lists
+- Lists can contain anything: numbers, atoms, tuples, other lists.
+- We can add items to a list using `++` operator and remove items from a list using the `--` operator.
+```erlang
+[1,2,3] ++ [4,5] % results in: [1,2,3,4,5]
+[1,2,3,4,5] -- [1,2,3] % returns: [4,5]
+[2,4,2] -- [2,4,2] % produced []
+```
+- Both `++` and `--` are right associative. This means the elements of multiple -- or ++ operations will be done right to left:
+```erlang
+[1,2,3] -- [1,2] -- [2]. % we get: [1,2,3] -- [1]. Then: [2,3].
+[1,2,3] -- [1,2] -- [3]. % outcome: [1,2,3] -- [1,2]. Then: [3].
+```
 
+- It is so common for operations in  erlang to work with a head of a list first, this is why it provides an easier way to separate the head from the tail of a list:
+```erlang
+List = [1,2,3,4].
+[1,2,3,4]
+[Head | Tail] = List.
+% Head -> 1, Tail -> [2,3,4]
+```
+- `|` operator is called the **cons operator** (constructor). Lists can be build using only cons operators and values: `[3 | [2 | [1 | []]]]` will result in list [3,2,1] being constructed.
+Another example to demonstrate this:
+```erlang
+[a, b, c, d]
+[a, b, c, d | []]
+[a, b | [c, d]]
+[a, b | [c | [d]]]
+[a | [b | [c | [d]]]]
+[a | [b | [c | [d | []]]]]
+```
+All of the above result in the same list being constructed: `[a, b, c, d]`
+- The form `[1 | 2]` gives what is called an improper list.
+- Proper lists end with an empty list as their last cell.
 
 ### Tuples
-
+- A tuple is a way of grouping together a set number of terms.
+- It is written in a form of `{Element1, Element2, ...}`.
+An example of a tuple in action:
+```erlang
+X = 10, Y = 2.
+Point = {X, Y}.
+Point. % -> {10, 2}
+```
+- Point in this case is made up of two terms.
+- To unpack or retrieve a specific value from a tuple we can use pattern matching, let's say the value of X:
+```erlang
+{Num1, _} = Point.
+Num1. % is now bound to 10
+```
+- Pattern matching to unpack a tuple will only work if the number of elements is the same. For example this would not work: `{X} = Point.`.
+- A tuple containing an atom with an element following it is called a *tagged tuple*. Example: `{phone, {"S8", 799}}.
 
 ### Booleans
 - Boolean algebra includes: _and, or, xor, not, not (true and true)_.
@@ -78,6 +131,18 @@ after and andalso band begin bnot bor bsl bsr bxor case catch cond div end fun i
 This is because of the following ordering of each element in a comparison:
 ```erlang
 number < atom < reference < fun < port < pid < tuple < list < bit string
+```
+
+### Bit / binary data
+- Erlang bit syntax encloses binary data between `<<` and `>>` and splits it into readable segments.
+- Each segment is comma separated.
+- A segment is a sequence of bits of a binary.
+- Pattern matching is also possible on bit strings.
+- We can even specify how many bits a variable will hold: `<<R:8, G:8, B:8>> = <<Pix1:24>>.`.
+- We don't have to unpack all values at once:
+```erlang
+Pixels = <<213,45,132,64,76,32,76,0,0,234,32,15>>.
+<<R:8, Rest/binary>> = Pixels.
 ```
 
 ### Equality and inequality:
@@ -105,7 +170,9 @@ __Important!__
 
 
 ## Variables (kind of)
-  - Can only be bound once (they are immutable). Start with a capital letter.
+- Can only be bound once (they are immutable). Start with a capital letter.
+- `\_` / underscore is the _don't care variable_. It does not store the value that would usually be placed there.
+- `\_` is always seen as unbound and acts as a wildcard for pattern matching.
 ## Function Clauses
 - Functions are identified by their name and the number of arguments they take.
 - Pattern matching is used to match the clause, order is important because the first match wins.
@@ -153,6 +220,10 @@ outside of the module: % <- _when using a function from an external module._
   my_list:sum([1, 2, 3, 4, 5]). % <- _module_name:function_name(arguments)._
 ```
 
+### Built-in functions (aka __BIFs__)
+- BIFs are usually functions that could not be implemented in pure Erlang, and hence are defined in C.
+- Some BIFs which could have been implemented in erlang were still implemented in C to provide more speed to common operations. `length(List)` is one example.
+
 ### Higher-order functions (aka __funs__)
 - Functions that return functions or take other functions as an argument.
 - Functions that manipulate functions.
@@ -163,11 +234,21 @@ outside of the module: % <- _when using a function from an external module._
 Double = fun(X) -> X * 2.
 Double(2) % returns 4
 ```
-
-### Built-in commands:
-
-- pwd() - prints current working directory.
-- ls() - lists names of files in current directory.
-- cd(Dir) - changes the current directory to Dir.
+## List Comprehensions
+- List comprehensions are ways to build and modify lists.
+- They can also make programs shorter and easier to understand compared to other ways of manipulating lists.
+- They are based on the mathematical idea of `set notation`. Like set notation, list comprehensions are about building sets from other sets.
+- For example, given the set `{2n : n <- L}`, where L is the list `[1,2,3]` this would read as "for all n values in [1,2,3], give me n*2". The set build from this would be [2,4,6].
+- In erlang this would look as follows: `[ N\*2 || N <- [1,2,3]].` This ouputs `[2,4,6]`.
+- Each number gets pattern matched to N and then an operation N * 2 is carried out on every N element from the list.
+- Another thing we can do in a list comprehension is to add a constraint by using operators that return Boolean values:
+```erlang
+[X || X <- [1,2,3,4], X rem 2 =:= 0]. 
+```
+- The part after the `,` perform the Boolean expression and if it returns true the item X is returned, otherwise it is ignored.
+- The output in this case is: `[2,4]`.
+- The Pattern <- List part is called a `generator expression`.
+- We can use more than one generator expression: `[X + Y || X <- [1,2], Y <- [3,4]].`
+- It is also possible to combine the generator expression with pattern matching which can act as a filter `[X || {circle, X} <- List]`
 
 ## Accumulators
