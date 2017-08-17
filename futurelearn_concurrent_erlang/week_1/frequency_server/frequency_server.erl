@@ -1,15 +1,41 @@
 -module(frequency_server).
--export([init/0]).
+-export([start/0, init/0]).
+-export([allocate/0, deallocate/1]).
 
 % Server = spawn(frequency_server, init, []).
 % Server ! {request, self(), allocate}.
 % receive {reply, Msg} -> Msg end.
 % Server ! {request, self(), {deallocate, Freq}}.
 % receive {reply, Reply} -> Reply end.
+% However this exposes the communication layer to the client. WE can add an abstraction layer to hide this detail.
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Public API / abstraction layer
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% This hides the process information and message protocol.
+%%% Each function sends a message and handles the reply.
+%%% Higher-level API but concurrent aspects are still hand-coded.
+allocate() ->
+    frequency_server ! {request, self(), allocate},
+    receive
+        {reply, Reply} ->
+            Reply
+    end.
+
+deallocate(Freq) ->
+    frequency_server ! {request, self(), {deallocate, Freq}},
+    receive
+        {reply, Reply} ->
+            Reply
+    end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Internal server functions
+%%%%%%%%%%%%%%%%%%%%%%%%
 
 % register(server, spawn(frequency_server, init, [])).
 start() ->
-    register(server, spawn(frequency_server, init, [])).
+    register(frequency_server, spawn(frequency_server, init, [])).
 
 init() ->
     Frequencies = {get_frequencies(), []},
