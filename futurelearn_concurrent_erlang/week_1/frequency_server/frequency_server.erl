@@ -7,9 +7,14 @@
 % Server ! {request, self(), {deallocate, Freq}}.
 % receive {reply, Reply} -> Reply end.
 
+% register(server, spawn(frequency_server, init, [])).
+start() ->
+    register(server, spawn(frequency_server, init, [])).
+
 init() ->
     Frequencies = {get_frequencies(), []},
     loop(Frequencies).
+
 
 % hard coded
 get_frequencies() ->
@@ -40,10 +45,19 @@ allocate({[], Allocated}, _Pid) ->
     {{[], Allocated},
      {error, no_frequency}};
 allocate({[Freq | Free], Allocated}, Pid) ->
-    {{Free, [{Freq, Pid} | Allocated]},
-     {ok, Freq}}.
+    case lists:keymember(Pid, 2, Allocated) of
+        true ->
+            {{[Freq | Free], Allocated}, {error, already_allocated}};
+         _ ->
+            {{Free, [{Freq, Pid} | Allocated]}, {ok, Freq}}
+    end.
 
 
 deallocate({Free, Allocated}, Freq) ->
-    NewAllocated = lists:keydelete(Freq, 1, Allocated),
-    {[Freq | Free], NewAllocated}.
+    case lists:keymember(Freq, 1, Allocated) of
+        true ->
+            NewAllocated = lists:keydelete(Freq, 1, Allocated),
+            {[Freq | Free], NewAllocated};
+        _ ->
+            {Free, Allocated}
+    end.
