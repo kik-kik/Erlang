@@ -141,4 +141,50 @@ Pid = whereis(atom_name)
 - Typically, we name static, long-lived processes.
 - A convention in erlang is that the named process gets its name from the module where it is defined (assuming there is only one per module).
 
+## Abstracting patterns of concurrency
 
+### RPC (Remote Procedure Call)
+- It consists of sending a message to a remote computer and then waiting for a response.
+- It takes two arguments, a Pid and a request.
+- Example:
+```erlang
+rpc(Pid, Request) ->
+    Tag = erlang:make_ref(),
+    Pid ! {self(), Tag, Request},
+    receive
+        {Tag, Response} -> Response
+    after 20 ->
+        timed_out
+    end.
+```
+- RPC split into two functions:
+```erlang
+rpc(Pid, Request) ->
+    Tag = erlang_make_ref(),
+    Pid ! {self(), Tag, Request},
+    Tag.
+
+wait_response(Tag) ->
+    receive
+        {Tag, Response} ->
+            Response
+    end.
+```
+- Another way to look at the above is in terms of _futures_:
+```erlang
+promise(Pid, Request) ->
+    Tag = erlang_make_ref(),
+    Pid ! {self(), Tag, Request},
+    Tag.
+
+yield(Tag) ->
+    receive
+        {Tag, Response} ->
+            Response
+    end.
+
+% to use this we do something like this:
+Tag = promise(Pid, fun() -> ... end),
+... do some computations...
+Val = yield(Tag).
+```
