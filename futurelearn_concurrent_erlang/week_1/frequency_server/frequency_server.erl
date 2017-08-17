@@ -1,6 +1,27 @@
 -module(frequency_server).
--export([allocate/2, deallocate/2]).
+-export([loop/1]).
 
+
+loop(Frequencies) ->
+    receive
+        {request, Pid, allocate} ->
+            {NewFrequencies, Reply} = allocate(Frequencies, Pid),
+            Pid ! {reply, Reply},
+            loop(NewFrequencies);
+        {request, Pid, {deallocate, Freq}} ->
+            NewFrequencies = deallocate(Frequencies, Freq),
+            Pid ! {reply, ok},
+            loop(NewFrequencies);
+        {request, Pid, stop} ->
+            Pid ! {reply, stopped}
+    end.
+
+
+
+
+%%%%%%%%%
+%%% |Internal functions
+%%%%%%%%%
 
 allocate({[], Allocated}, _Pid) ->
     {{[], Allocated},
