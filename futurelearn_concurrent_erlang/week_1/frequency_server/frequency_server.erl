@@ -1,6 +1,12 @@
 -module(frequency_server).
 -export([init/0]).
 
+% Server = spawn(frequency_server, init, []).
+% Server ! {request, self(), allocate}.
+% receive {reply, Msg} -> Msg end.
+% Server ! {request, self(), {deallocate, Freq}}.
+% receive {reply, Reply} -> Reply end.
+
 init() ->
     Frequencies = {get_frequencies(), []},
     loop(Frequencies).
