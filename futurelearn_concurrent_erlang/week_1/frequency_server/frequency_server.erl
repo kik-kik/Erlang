@@ -1,6 +1,13 @@
 -module(frequency_server).
--export([loop/1]).
+-export([init/0]).
 
+init() ->
+    Frequencies = {get_frequencies(), []},
+    loop(Frequencies).
+
+% hard coded
+get_frequencies() ->
+    [10, 11, 12, 13, 14, 15].
 
 loop(Frequencies) ->
     receive
