@@ -2,13 +2,13 @@
 -export([to_rna/1]).
 -export([test_version/0]).
 
-to_rna(DNA) when DNA == "G" ->
+to_rna("G") ->
   "C";
-to_rna(DNA) when DNA == "C" ->
+to_rna("C") ->
   "G";
-to_rna(DNA) when DNA == "T" ->
+to_rna("T") ->
   "A";
-to_rna(DNA) when DNA == "A" ->
+to_rna("A") ->
   "U";
 to_rna(_) ->
   "UGCACCAGAAUU".
